@@ -1,5 +1,5 @@
 # -*- coding=utf-8 -*-
-from zwznlp.preprocessor.basicProprecessor import BasicProprecessor
+from zwznlp.preprocessor.basicProprecessor import BasicPreprocessor
 
-class NerPreprocessor(BasicProprecessor):
+class NerPreprocessor(BasicPreprocessor):
     pass 
