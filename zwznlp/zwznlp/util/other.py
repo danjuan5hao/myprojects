@@ -93,3 +93,13 @@ def pad_sequences_2d(sequences: List[List[List[str]]],
             raise ValueError('Padding type "%s" not understood' % padding)
 
     return x
+
+
+def one_hot_label(label_ids, num_class):
+    rst = []
+    # len_seq = len(label_ids)
+    for idx in label_ids:
+        tmp = [0] * num_class
+        tmp[idx] = 1
+        rst.append(tmp)
+    return rst

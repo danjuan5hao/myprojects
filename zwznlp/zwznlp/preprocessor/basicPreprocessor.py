@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
 from typing import Callable, List, Tuple, Dict, Optional
-import os, sys
-root = os.path.join(os.path.dirname(__file__), "../../..")
-sys.path.insert(0, root)
 
 from absl import logging
 import numpy as np 
 from torch.nn.utils.rnn import pad_sequence
-
-
 
 from zwznlp.util.embedding import load_pre_trained, train_w2v, train_fasttext
 

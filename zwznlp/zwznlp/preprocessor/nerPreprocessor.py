@@ -9,8 +9,7 @@ import numpy as np
 from transformers import BertTokenizer
 
 from zwznlp.preprocessor.basicPreprocessor import BasicPreprocessor
-
-from zwznlp.util.other import get_len_from_corpus
+from zwznlp.util.other import get_len_from_corpus, pad_sequences_2d, one_hot_label
 
 class NerPreprocessor(BasicPreprocessor):
     """NER preprocessor, which is used to
@@ -214,7 +213,7 @@ class NerPreprocessor(BasicPreprocessor):
                 batch_char_ids.append(char_ids)
 
             if self.use_bert:
-                indices = self.bert_tokenizer.encode(first_text=''.join(char_text)) # , segments 
+                indices = self.bert_tokenizer.encode(text=''.join(char_text)) # , segments 
                 # TODO 需要统一hugging face 还有BERT4KERAS中的不一致 主要在segments上
                 batch_bert_ids.append(indices)
                 segments = [0]*len(indices)
@@ -232,7 +231,9 @@ class NerPreprocessor(BasicPreprocessor):
                     label_str = labels[i]
                 label_ids = [self.label_vocab.get(l, self.get_unk_label_id()) for l in label_str]
                 # label_ids = tf.keras.utils.to_categorical(label_ids, self.num_class).astype(int)
+                label_ids = one_hot_label(label_ids, self.num_class)
                 batch_label_ids.append(label_ids)
+                
 
         features = []
         if self.use_char:

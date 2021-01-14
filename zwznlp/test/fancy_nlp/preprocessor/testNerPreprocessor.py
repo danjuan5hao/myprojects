@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-import os,sys
-root = os.path.join(os.path.dirname(__file__), "../../..")
-sys.path.insert(0, root)
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../../"))
 
 import jieba
 import numpy as np
@@ -44,6 +44,7 @@ class TestNERPreprocessor:
         assert list(self.preprocessor.id2label.keys())[0] == 0
 
     def test_prepare_input(self):
+  
         features, y = self.preprocessor.prepare_input(self.preprocessor.train_data,
                                                       self.preprocessor.train_labels)
         assert len(features) == 4
@@ -87,4 +88,4 @@ class TestNERPreprocessor:
 if __name__ == "__main__":
     a = TestNERPreprocessor()
     a.setup_class()
-    a.test_label_decode()
+    a.test_prepare_input()
