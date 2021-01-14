@@ -1,5 +1,6 @@
 # 为基本的NLP任务制作框架
-用于应付快速制作baseline， 代码结构参考[fancy_nlp](https://github.com/boat-group/fancy-nlp)
+用于应付快速制作baseline， 代码绝大部分抄袭[fancy_nlp](https://github.com/boat-group/fancy-nlp)
+
 ## 文本分类任务
 
 ## 语义相似度任务
@@ -44,3 +45,7 @@ file2:
 }
 
 ## isA抽取任务
+
+## 阅读理解任务
+
+## 文本摘要任务
