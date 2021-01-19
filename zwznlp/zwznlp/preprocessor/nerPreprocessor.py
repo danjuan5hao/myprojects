@@ -200,7 +200,7 @@ class NerPreprocessor(BasicPreprocessor):
             y: label id matrix only if labels is provided, otherwise None,
 
         """
-        batch_char_ids, batch_bert_ids, batch_bert_seg_ids, batch_word_ids = [], [], [], []
+        batch_char_ids, batch_bert_ids, batch_bert_seg_ids, batch_word_ids, batch_attention_masks = [], [], [], [], []
         batch_label_ids = []
         for i, char_text in enumerate(texts):
             if self.use_char:
@@ -214,9 +214,13 @@ class NerPreprocessor(BasicPreprocessor):
 
             if self.use_bert:
                 indices = self.bert_tokenizer.encode(text=''.join(char_text)) # , segments 
-                # TODO 需要统一hugging face 还有BERT4KERAS中的不一致 主要在segments上
+                text_len = len(indices)
                 batch_bert_ids.append(indices)
-                segments = [0]*len(indices)
+                
+                attention_mask = [1]*text_len+[0]*(self.max_len-text_len)
+                batch_attention_masks.append(attention_mask)
+
+                segments = [0]*text_len
                 batch_bert_seg_ids.append(segments)
 
             if self.use_word:
@@ -241,6 +245,8 @@ class NerPreprocessor(BasicPreprocessor):
         if self.use_bert:
             features.append(self.pad_sequence(batch_bert_ids))
             features.append(self.pad_sequence(batch_bert_seg_ids))
+            features.append(self.pad_sequence(batch_attention_masks))
+
         if self.use_word:
             features.append(self.pad_sequence(batch_word_ids))
 
