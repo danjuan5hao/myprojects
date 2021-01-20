@@ -222,25 +222,10 @@ class BasicPreprocessor:
             a 2D Numpy array of shape `(num_samples, num_timesteps)`
 
         """
-        # return tf.keras.preprocessing.sequence.pad_sequences(sequence_list,
-        #                                                      maxlen=self.max_len,
-        #                                                      padding=self.padding_mode,
-        #                                                      truncating=self.truncating_mode)
         padded_trunct_matrix = np.zeros((len(sequence_list), self.max_len), dtype=int)
         for i, sequence in enumerate(sequence_list):
-            if self.truncating_mode == "post":
-                sequence = sequence[:self.max_len] 
-            elif self.truncating_mode == "pre": 
-                sequence = sequence[-self.max_len:] 
-            else:
-                raise ValueError('Truncating type "%s" not understood' % self.truncating_mode)
-            if self.padding_mode == "post":
-                padded_trunct_matrix[i, :self.max_len] = sequence
-            elif self.padding_mode == "pre":
-                padded_trunct_matrix[i, -self.max_len:] = sequence
-            else:
-                raise ValueError('Padding type "%s" not understood' % self.padding_mode)
-
+            sequence = sequence[:self.max_len] 
+            padded_trunct_matrix[i, :self.max_len] = sequence
         return padded_trunct_matrix
 
     def label_decode(self, predictions, label_dict):
