@@ -56,42 +56,16 @@ def pad_sequences_2d(sequences: List[List[List[str]]],
     for i, s in enumerate(sequences):
         if not len(s):
             continue    # empty list was found
-
-        if truncating == 'pre':
-            s = s[-max_len_1:]
-        elif truncating == 'post':
-            s = s[:max_len_1]
-        else:
-            raise ValueError('Truncating type "%s" not understood' % truncating)
+        s = s[:max_len_1]
 
         y = (np.ones((len(s), max_len_2)) * value).astype(dtype)
         for j, t in enumerate(s):
             if not len(t):
                 continue
-
-            if truncating == 'pre':
-                trunc = t[-max_len_2:]
-            elif truncating == 'post':
-                trunc = t[:max_len_2]
-            else:
-                raise ValueError('Truncating type "%s" not understood' % truncating)
-
-            trunc = np.asarray(trunc, dtype=dtype)
-
-            if padding == 'post':
-                y[j, :len(trunc)] = trunc
-            elif padding == 'pre':
-                y[j, -len(trunc):] = trunc
-            else:
-                raise ValueError('Padding type "%s" not understood' % padding)
-
-        if padding == 'post':
-            x[i, :y.shape[0], :] = y
-        elif padding == 'pre':
-            x[i, -y.shape[0]:, :] = y
-        else:
-            raise ValueError('Padding type "%s" not understood' % padding)
-
+            trunc = t[:max_len_2]           
+            trunc = np.asarray(trunc, dtype=dtype)  
+            y[j, :len(trunc)] = trunc      
+        x[i, :y.shape[0], :] = y
     return x
 
 

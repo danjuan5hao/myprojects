@@ -23,7 +23,7 @@ class NerPreprocessor(BasicPreprocessor):
                  train_data: List[List[str]],
                  train_labels: List[List[str]],
                  max_len: int = None, 
-                 bert_pretrain_weight = "chinese_wwm_pytorch") -> None:
+                 bert_pretrain_weight = "hfl/chinese_wwm_pytorch") -> None:
         """
         """
         super(NerPreprocessor, self).__init__(max_len)
@@ -44,7 +44,7 @@ class NerPreprocessor(BasicPreprocessor):
             self.max_len = min(self.max_len + 2, 512)
 
         return 
-·
+
     def build_label_vocab(self,
                           labels: List[List[str]]) -> Tuple[Dict[str, int], Dict[int, str]]:
         """Build label vocabulary.
@@ -76,58 +76,43 @@ class NerPreprocessor(BasicPreprocessor):
         Here we not only use character embeddings (or bert embeddings) as main input, but also
         support word embeddings and other hand-crafted features embeddings as additional input.
 
-        Args:
-            data: List of List of str. List of tokenized (in char level) texts for training,
-                like ``[['我', '在', '上', '海', '上'， '学'], ...]``.
-            labels: Optional List of List of str, can be None. The labels of train_data, usually in
-            BIO or BIOES format, like ``[['O', 'O', 'B-LOC', 'I-LOC', 'O', 'O'], ...]``.
-
-        Returns: Tuple:
-            features: id matrix
-            y: label id matrix only if labels is provided, otherwise None,
-
         """
+            
         batch_bert_ids, batch_bert_seg_ids,  batch_attention_masks = [], [], []
         batch_label_ids = []
         for i, char_text in enumerate(texts):
 
-            indices = self.bert_tokenizer.encode(text=''.join(char_text)) # , segments 
-            text_len = len(indices)
-            batch_bert_ids.append(indices)
-                
+            tokens = self.bert_tokenizer.tokenize(text=''.join(char_text)) 
+            tokens = ["[CLS]"]+tokens[:self.max_len-2]+["[SEP]"]
+            text_len = len(tokens)
+            indices = self.bert_tokenizer.convert_tokens_to_ids(tokens+["[PAD]"]*(self.max_len-text_len))
             attention_mask = [1]*text_len+[0]*(self.max_len-text_len)
-            batch_attention_masks.append(attention_mask)
+            token_type_ids = [0]*self.max_len
 
-            segments = [0]*text_len
-            batch_bert_seg_ids.append(segments)
+            batch_bert_ids.append(indices)
+            batch_attention_masks.append(attention_mask)
+            batch_bert_seg_ids.append(token_type_ids)
 
             if labels is not None:              
-                label_str = [self.cls_token] + labels[i] + [self.cls_token]
-                label_ids = [self.label_vocab.get(l, self.get_unk_label_id()) for l in label_str]
-                label_ids = one_hot_label(label_ids, self.num_class)
-                batch_label_ids.append(label_ids)
+                # label_str = [self.cls_token] + labels[i] + [self.cls_token]
+                # label_ids = [self.label_vocab.get(l, self.get_unk_label_id()) for l in label_str]
+                label_str = labels[i]
+                label_id = [self.get_unk_label_id()]
+                for j in range(text_len-2):
+                    label_id.append(self.label_vocab.get(label_str[j], self.get_unk_label_id()))
+                label_id.append(self.get_unk_label_id())
+                if len(label_id) < self.max_len:
+                    label_id = label_id + [self.get_unk_label_id()]*(self.max_len - len(label_id))
+                
+                batch_label_ids.append(label_id)
                 
 
         features = []
-        if self.use_char:
-            features.append(self.pad_sequence(batch_char_ids))
-        if self.use_bert:
-            features.append(self.pad_sequence(batch_bert_ids))
-            features.append(self.pad_sequence(batch_bert_seg_ids))
-            features.append(self.pad_sequence(batch_attention_masks))
+        features.append(self.pad_sequence(batch_bert_ids))
+        features.append(self.pad_sequence(batch_bert_seg_ids))
+        features.append(self.pad_sequence(batch_attention_masks))
 
-        if self.use_word:
-            features.append(self.pad_sequence(batch_word_ids))
-
-        if len(features) == 1:
-            features = features[0]
-
-        if not batch_label_ids:
-            return features, None
-        else:
-            y = pad_sequences_2d(batch_label_ids, max_len_1=self.max_len, max_len_2=self.num_class,
-                                 padding=self.padding_mode, truncating=self.truncating_mode)
-            return features, y
+        return features, batch_label_ids
 
     def get_word_ids(self, word_cut: List[str]) -> List[int]:
         """Given a word-level tokenized text, return the corresponding word ids in char-level
@@ -205,13 +190,3 @@ class NerPreprocessor(BasicPreprocessor):
         p = pickle.load(open(preprocessor_file, 'rb'))
         p.load_word_dict()  # reload external word dict into jieba
         return p
-
-class BertNerPreprocessor(BasicPreprocessor):
-    def __init__(self,
-                 train_data: List[List[str]],
-                 train_labels: List[List[str]],
-                 min_count: int = 2,
-                 max_len: Optional[int] = None,
-                 padding_mode: str = 'post',
-                 truncating_mode: str = 'post') -> None: 
-        super(BertNerPreprocessor, self).__init__()

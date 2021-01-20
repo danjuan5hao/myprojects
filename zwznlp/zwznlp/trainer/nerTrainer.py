@@ -24,9 +24,9 @@ from transformers import (
 )
 
 from zwznlp.preprocessor.nerPreprocessor import NerPreprocessor
-from zwznlp.dataLoader.nerDataset import BertNerDataset
+from zwznlp.dataLoader.nerDataset import NerDataset
 
-class BertNerTrainer:
+class  NerTrainer:
     """NER Trainer, which is used to
     1) train ner model with given training dataset
     2) evaluate ner model with given validation dataset
@@ -47,10 +47,8 @@ class BertNerTrainer:
         self.preprocessor = preprocessor
 
     def fit(self,
-            train_data: List[List[str]],
-            train_labels: List[List[str]],
-            valid_data: Optional[List[List[str]]] = None,
-            valid_labels: List[List[str]] = None,
+            train_dataloader,
+            dev_dataloader,
             batch_size: int = 32,
             epochs: int = 50) -> None:
         """Train ner model with provided training dataset. If validation dataset is provided,
@@ -91,7 +89,7 @@ class BertNerTrainer:
         """
 
         train_features, train_y = self.preprocessor.prepare_input(train_data, train_labels)
-        dataset = BertNerDataset(train_features, train_y)
+        dataset = NerDataset(train_features, train_y)
         dataloader = DataLoader(dataset)
 
         no_decay = ["bias", "LayerNorm.weight"]
@@ -109,9 +107,7 @@ class BertNerTrainer:
             for _, batch in enumerate(dataloader):
                 self.model.train() 
                 inputs  = {"input_ids": batch[0], "attention_mask": batch[1], "token_type_ids":batch[2], "labels": batch[3]}
-                # TODO
-                # outputs = self.model(**inputs)
-                # loss = outputs[0]  # model outputs are always tuple in transformers (see doc)
+
                 loss.backward()
                 tr_loss += loss.item()
 

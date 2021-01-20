@@ -6,7 +6,7 @@ from absl import logging
 import numpy as np
 import torch 
 
-from zwznlp.preprocessors import BertNerPreprocessor
+from zwznlp.preprocessors import NerPreprocessor
 
 class BertNerApp:
     """NER application. Support training ner model from scratch with provided dataset,
@@ -111,31 +111,15 @@ class BertNerApp:
             train_labels: List[List[str]],
             valid_data: Optional[List[List[str]]] = None,
             valid_labels: Optional[List[List[str]]] = None,
-            # ner_model_type: str = 'bilstm_cnn',
-            # use_char: bool = False,
-            # char_embed_type: Optional[str] = 'word2vec',
-            # char_embed_dim: int = 300,
-            # char_embed_trainable: bool = True,
-            use_bert: bool = True,
-            bert_vocab_file: Optional[str] = None,
-            bert_config_file: Optional[str] = None,
-            bert_checkpoint_file: Optional[str] = None,
+
+            bert_pretrain_weight: str = "hfl/chinese-bert-wwm",
             bert_trainable: bool = False,
-            use_word: bool = False,
-            external_word_dict: Optional[List[str]] = None,
-            word_embed_type: Optional[str] = 'word2vec',
-            word_embed_dim: int = 300,
-            word_embed_trainable: bool = True,
             max_len: Optional[int] = None,
-            # use_crf: bool = True,
-            # optimizer: Union[str, tf.keras.optimizers.Optimizer] = 'adam',
+           
             batch_size: int = 32,
             epochs: int = 50,
-            # callback_list: Optional[List[str]] = None,
-            checkpoint_dir: Optional[str] = None,
-            # model_name: Optional[str] = None,
-            # load_swa_model: bool = False,
-            **kwargs) -> None:
+            checkpoint_dir: Optional[str] = None
+            ) -> None:
         """Train ner model with provided dataset.
 
         We would like to make NER in Fancy-NLP more configurable, so we provided a bunch of
@@ -242,15 +226,7 @@ class BertNerApp:
 
         self.preprocessor = NerPreprocessor(train_data=train_data,
                                             train_labels=train_labels,
-                                            use_char=use_char,
-                                            use_bert=use_bert,
-                                            use_word=use_word,
-                                            external_word_dict=external_word_dict,
-                                            bert_vocab_file=bert_vocab_file,
-                                            char_embed_type=char_embed_type,
-                                            char_embed_dim=char_embed_dim,
-                                            word_embed_type=word_embed_type,
-                                            word_embed_dim=word_embed_dim,
+                                            bert_pretrain_weight=bert_pretrain_weight,                                       
                                             max_len=max_len)
 
         self.model = self.get_ner_model(ner_model_type=ner_model_type,
@@ -276,9 +252,8 @@ class BertNerApp:
 
 
         self.trainer = NerTrainer(self.model, self.preprocessor)
-        self.trainer.train_generator(train_data, train_labels, valid_data, valid_labels,
-                                     batch_size, epochs, callback_list, checkpoint_dir, model_name,
-                                     swa_model, load_swa_model)
+        self.trainer.fit(train_data, train_labels, valid_data, valid_labels,
+                        batch_size, epochs)
 
         self.predictor = NERPredictor(self.model, self.preprocessor)
 

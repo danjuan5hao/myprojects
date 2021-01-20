@@ -7,7 +7,7 @@ import torch.nn as nn
 from zwznlp.model.ner.basicNerModel import BasicNerModel
 
 
-class BertNerModel(BasicNerModel):
+class NerModel(BasicNerModel):
     """Bert model for NER. Support using CRF layer.
         We suggest you to train bert on machines with GPU cause it will be very slow to be trained with
         cpu.
@@ -15,13 +15,9 @@ class BertNerModel(BasicNerModel):
 
     def __init__(self,
                  num_class: int,
-                 bert_config_file: str,
-                 bert_checkpoint_file: str,
                  bert_trainable: bool,
-                 max_len: int,
-                 bert_dim):
+                 max_len: int):
         """
-
         Args:
             num_class: int. Number of entity type.
             bert_config_file: str. Path to bert's configuration file.
