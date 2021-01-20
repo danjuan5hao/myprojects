@@ -15,7 +15,7 @@ class NerModel(BasicNerModel):
 
     def __init__(self,
                  num_class: int,
-                 bert_trainable: bool,
+                 bert_pretrain_weight="hfl/chinese_wwm_pytorch",
                  max_len: int):
         """
         Args:
@@ -35,12 +35,7 @@ class NerModel(BasicNerModel):
         # bert
         self.num_class = num_class
         self.max_len = max_len
-        self.bert_dim = bert_dim
-        super(BertNerModel, self).__init__(use_char=False, use_bert=True,
-                                            bert_config_file=bert_config_file,
-                                            bert_checkpoint_file=bert_checkpoint_file,
-                                            bert_trainable=bert_trainable, use_word=False,
-                                            max_len=max_len)
+        super(NerModel, self).__init__()
 
     def build_model(self) -> nn.Module:
         embeddings = self.build_embedding()
