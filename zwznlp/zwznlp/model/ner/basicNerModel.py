@@ -2,7 +2,7 @@ from typing import Optional
 
 import numpy as np
 import torch.nn as nn
-from transformers import BertForTokenClassification 
+from transformers import BertForTokenClassification, BertForPreTraining, BertConfig
 
 from zwznlp.model.basicModel import BasicModel
 
@@ -11,6 +11,7 @@ class BasicNerModel(BasicModel):
 
     """
     def __init__(self,
+                 num_class,
                  bert_pretrain_weight: str = "hfl/chinese_wwm_pytorch",
                  max_len: Optional[int] = None) -> None:
         """
@@ -39,12 +40,17 @@ class BasicNerModel(BasicModel):
         super(BasicNerModel, self).__init__()
         self.bert_pretrain_weight = bert_pretrain_weight 
         self.max_len = max_len
+        self.num_class = num_class
 
-    def build_embedding(self):
-        return 
+    def build_embedding(self): 
         """Build input placeholder and prepare embedding for ner model
         """
-        bert_model = BertForTokenClassification.from_pretrained(self.bert_pretrain_weight) # TODO
+       
+        config = BertConfig.from_pretrained(self.bert_pretrain_weight,
+                                            num_labels=self.num_class)
+        bert_model = BertForTokenClassification.from_pretrained(self.bert_pretrain_weight, config=config) 
+        # bert_model = BertForPreTraining.from_pretrained(self.bert_pretrain_weight, config=config) 
+
         return bert_model
 
     def build_model(self):

@@ -6,17 +6,16 @@ import torch
 import torch.nn as nn
 from zwznlp.model.ner.basicNerModel import BasicNerModel
 
-
 class NerModel(BasicNerModel):
     """Bert model for NER. Support using CRF layer.
         We suggest you to train bert on machines with GPU cause it will be very slow to be trained with
         cpu.
     """
 
-    def __init__(self,
+    def __init__(self, 
                  num_class: int,
-                 bert_pretrain_weight="hfl/chinese_wwm_pytorch",
-                 max_len: int):
+                 max_len: int,
+                 bert_pretrain_weight="hfl/chinese_wwm_pytorch",):
         """
         Args:
             num_class: int. Number of entity type.
@@ -33,24 +32,27 @@ class NerModel(BasicNerModel):
             **kwargs:
         """
         # bert
+        super(NerModel, self).__init__(num_class = num_class,
+                                       max_len=max_len,
+                                       bert_pretrain_weight=bert_pretrain_weight)
         self.num_class = num_class
-        self.max_len = max_len
-        super(NerModel, self).__init__()
 
     def build_model(self) -> nn.Module:
-        embeddings = self.build_embedding()
-        bert_embedding = embeddings.get("bert_emb")
-        model = BertNerTorchModel(bert_embedding, self.max_len, self.num_class, self.bert_dim)
+        bert_embedding = self.build_embedding()
+        model = NerTorchModel(bert_embedding)
         return model
 
-class BertNerTorchModel(nn.Module):
-    def __init__(self, bert_embedding, max_len, num_class, bert_dim):
-        super(BertNerTorchModel, self).__init__()
-        self.bert_embeding = bert_embedding
-        self.dense = nn.Linear(bert_dim, num_class)
+class NerTorchModel(nn.Module):
+    def __init__(self, bert_embedding):
+        super(NerTorchModel, self).__init__()
+        self.bert_embedding = bert_embedding
+        # self.dense = nn.Linear(bert_dim, num_class)
         
-    def forward(self, xs):
-        xs = self.bert_embedding(xs)
-        return  self.dense(xs)
+    def forward(self, input_ids=None, attention_mask=None, token_type_ids=None):
+        inputs = {"input_ids": input_ids,
+                  "attention_mask": attention_mask,
+                  "token_type_ids": token_type_ids}
+        outputs = self.bert_embedding(**inputs)[0]
+        return  outputs
 
 
