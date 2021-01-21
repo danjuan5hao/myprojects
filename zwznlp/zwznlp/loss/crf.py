@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 
 
-class CRF(nn.Module):
+class CRFloss(nn.Module):
     """Conditional random field.
 
     This module implements a conditional random field [LMP01]_. The forward computation
@@ -35,7 +35,7 @@ class CRF(nn.Module):
     .. _Viterbi algorithm: https://en.wikipedia.org/wiki/Viterbi_algorithm
     """
 
-    def __init__(self, num_tags: int, batch_first: bool = False) -> None:
+    def __init__(self, num_tags: int, batch_first: bool = True) -> None:
         if num_tags <= 0:
             raise ValueError(f'invalid number of tags: {num_tags}')
         super().__init__()

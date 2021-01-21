@@ -15,7 +15,7 @@ from zwznlp.model.ner.nerModel import NerModel
 class TestNerTrainer:
 
     text_file_path = r"testData\ner\msra\example.txt"
-    batch_size = 32
+    batch_size = 11
     bert_pretrain_weight="hfl/chinese-bert-wwm"
     max_len = 50
 
@@ -24,21 +24,20 @@ class TestNerTrainer:
         preprocessor = NerPreprocessor(x_train, y_train, bert_pretrain_weight="hfl/chinese-bert-wwm", max_len=50)
         features, labels =  preprocessor.prepare_input(preprocessor.train_data,
                                                        preprocessor.train_labels)
-        num_class = preprocessor.num_class
+        self.num_class = preprocessor.num_class
         ner_dataset = NerDataset(features, labels)
-        ner_dataloader = DataLoader(ner_dataset)
+        self.ner_dataloader = DataLoader(ner_dataset, batch_size=self.batch_size)
 
-        model_builder = NerModel(num_class, bert_pretrain_weight=self.bert_pretrain_weight, max_len=self.max_len)
-        model = NerModel.build_model() 
+        model_builder = NerModel(self.num_class, bert_pretrain_weight=self.bert_pretrain_weight, max_len=self.max_len)
+        model = model_builder.build_model() 
 
         self.ner_trainer = NerTrainer(model, preprocessor)
 
-    def test_train(self):
-        pass 
-
+    def test_train_fit(self):
+        self.ner_trainer.fit(self.ner_dataloader, self.num_class)
 
 if __name__ == "__main__":
     test_nerTrainer = TestNerTrainer()
     test_nerTrainer.setup_class()
-    test_nerTrainer.test_get_one()
+    test_nerTrainer.test_train_fit()
     print("Done")

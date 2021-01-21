@@ -26,6 +26,7 @@ from transformers import (
 
 from zwznlp.preprocessor.nerPreprocessor import NerPreprocessor
 from zwznlp.dataLoader.nerDataset import NerDataset
+from zwznlp.loss.crf import CRFloss
 
 class  NerTrainer:
     """NER Trainer, which is used to
@@ -49,6 +50,7 @@ class  NerTrainer:
 
     def fit(self,
             train_dataloader,
+            num_class, 
             dev_dataloader = None,
             epochs: int = 50) -> None:
         """Train ner model with provided training dataset. If validation dataset is provided,
@@ -61,7 +63,7 @@ class  NerTrainer:
             {"params": [p for n, p in self.model.named_parameters() if any(nd in n for nd in no_decay)], "weight_decay": 0.0},]
         
         optimizer = AdamW(optimizer_grouped_parameters)
-        c = nn.CrossEntropyLoss()
+        criterion = CRFloss(num_class)
 
         global_step = 0
         tr_loss = 0.0
@@ -70,13 +72,20 @@ class  NerTrainer:
         for _ in range(epochs):
             for _, batch in enumerate(train_dataloader):
                 self.model.train() 
-                inputs  = {"input_ids": batch[0], "attention_mask": batch[1], "token_type_ids":batch[2], "labels": batch[3]}
-                loss = c(inputs, batch[3]) 
+                # inputs  = {"input_ids": batch[0], "attention_mask": batch[1], "token_type_ids":batch[2]}
+                inputs  = {"input_ids": batch[0],  "token_type_ids":batch[2]}
+
+                outputs = self.model(**inputs)
+                llk = criterion(outputs, batch[3])  # TODO mask
+                loss = -llk
                 loss.backward()
-                tr_loss += loss.item()
+                # tr_loss += loss.item()
                 optimizer.step()
                 self.model.zero_grad()
                 global_step += 1
+            print(loss.item())
+
+                # print(tr_loss)
 
                     
 

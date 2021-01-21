@@ -4,6 +4,8 @@ import os, sys
 
 import torch 
 import torch.nn as nn
+from torchcrf import CRF
+
 from zwznlp.model.ner.basicNerModel import BasicNerModel
 
 class NerModel(BasicNerModel):
@@ -39,13 +41,14 @@ class NerModel(BasicNerModel):
 
     def build_model(self) -> nn.Module:
         bert_embedding = self.build_embedding()
-        model = NerTorchModel(bert_embedding)
+        model = NerTorchModel(bert_embedding, self.num_class)
         return model
 
 class NerTorchModel(nn.Module):
-    def __init__(self, bert_embedding):
+    def __init__(self, bert_embedding, num_class):
         super(NerTorchModel, self).__init__()
         self.bert_embedding = bert_embedding
+        
         # self.dense = nn.Linear(bert_dim, num_class)
         
     def forward(self, input_ids=None, attention_mask=None, token_type_ids=None):
