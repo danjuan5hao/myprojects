@@ -8,6 +8,7 @@ from absl import logging
 import torch 
 from seqeval.metrics import sequence_labeling
 from zwznlp.preprocessor import NerPreprocessor
+from zwznlp.loss.crf import CRF
 
 
 class NERPredictor(object):
@@ -30,14 +31,12 @@ class NERPredictor(object):
         self.model = model
         self.preprocessor = preprocessor
 
-    def predict_prob(self, text: Union[str, List[str]]):
+    def tag(self, text):
+        features, _ = self.preprocessor.prepare_input([text])
+        inputs = 
+        _, outputs = self.model()
+        
         pass 
 
-    def predict_prob_batch(self, texts: Union[List[str], List[List[str]]]):
-        pass 
-
-    def tag(self, text: Union[str, List[str]]):
-        pass 
-
-    def tag_batch(self, texts: Union[List[str], List[List[str]]]):
+    def tag_batch(self, texts):
         pass 

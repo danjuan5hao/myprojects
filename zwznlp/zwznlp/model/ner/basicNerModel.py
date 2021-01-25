@@ -6,6 +6,7 @@ from transformers import BertForTokenClassification, BertForPreTraining, BertCon
 
 from zwznlp.model.basicModel import BasicModel
 
+
 class BasicNerModel(BasicModel):
     """The basic class for ner models. All the ner models will inherit from it.
 
@@ -41,6 +42,7 @@ class BasicNerModel(BasicModel):
         self.bert_pretrain_weight = bert_pretrain_weight 
         self.max_len = max_len
         self.num_class = num_class
+        
 
     def build_embedding(self): 
         """Build input placeholder and prepare embedding for ner model

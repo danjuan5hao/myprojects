@@ -7,6 +7,7 @@ import torch.nn as nn
 from torchcrf import CRF
 
 from zwznlp.model.ner.basicNerModel import BasicNerModel
+from zwznlp.layer.crf import CRFLayer 
 
 class NerModel(BasicNerModel):
     """Bert model for NER. Support using CRF layer.
@@ -48,6 +49,7 @@ class NerTorchModel(nn.Module):
     def __init__(self, bert_embedding, num_class):
         super(NerTorchModel, self).__init__()
         self.bert_embedding = bert_embedding
+        self.crflayer = CRFLayer(num_class)
         
         # self.dense = nn.Linear(bert_dim, num_class)
         
@@ -56,6 +58,7 @@ class NerTorchModel(nn.Module):
                   "attention_mask": attention_mask,
                   "token_type_ids": token_type_ids}
         outputs = self.bert_embedding(**inputs)[0]
-        return  outputs
+        return outputs, self.crflayer.decode(outputs)
+          
 
 
