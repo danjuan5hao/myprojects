@@ -136,7 +136,8 @@ class CRFLayer(nn.Module):
             emissions = emissions.transpose(0, 1)
             mask = mask.transpose(0, 1)
 
-        return self._viterbi_decode(emissions, mask)
+        with torch.no_grad(): 
+            return self._viterbi_decode(emissions, mask)
 
     def _validate(
             self,
