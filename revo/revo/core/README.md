@@ -8,7 +8,10 @@ core由两个部分组成，分别是1.dst和2.policy。dst负责对话状态追
 
 ### DST
 #### rule policy (single domain)
+不处理cross domain问题。简单的通过Message中的domain, intent, slot: value 进行填充。 
 #### cross domain问题
  
 ### Policy
+#### rule policy 
+不处理cross domain问题。简单的通过Message中的domain, intent, slot: value。 按序检查最近的domain中有没有slot空缺。针对空缺进行提问。 
 #### action 
