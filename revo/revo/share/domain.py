@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-class Domains:
-    pass
-
 
 class Domain:
+    """
+    Domain define part of the universe what bot should know about and how to react.
+    
+    """
     def __init__(self, name, **kwargs):
         self.name = name 
         self.intents = kwargs.get('intents', [])
