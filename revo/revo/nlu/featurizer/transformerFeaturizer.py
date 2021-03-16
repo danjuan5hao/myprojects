@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from transformers import AutoModel, AutoTokenizer 
+
 class TransformerFeaturizer:
     """Featurizer using transformer-based language models.
 
