@@ -14,7 +14,7 @@ LANGUAGE = config.TORCH_FASTTEXT_LANGUAGE
 
 class Embedding:
     def __init__(self, tokenizer, stoi, itos, vectors, unk_mark, unk_id):
-        # self.tokenizer = tokenizer 
+        # self.tokenizer = tokenizer kxxl
         self.stoi = stoi 
         self.itos = itos 
         self.vectors = vectors
