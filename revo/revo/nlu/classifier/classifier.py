@@ -2,10 +2,17 @@
 from itertools import chain
 
 import torch 
-import torch.nn as nn 
+import torch.nn as nn
+
+
+class Classifier:
+    @classmethod
+    def load(clf, name, in_dim, domain_num, path):
+        if name == "textcnn":
+            return TextCnnClassifier.load(path, in_dim, domain_num)
 
 class TextCnnClassifier(nn.Module):
-    def __init__(self, in_dim, out_dim):
+    def __init__(self, in_dim,  cls_num, out_dim=50):
         super(TextCnnClassifier, self).__init__()
         self.conv3s = nn.ModuleList([nn.Sequential(
             collections.OrderedDict([
@@ -32,6 +39,7 @@ class TextCnnClassifier(nn.Module):
         ) for _ in range(60)])
 
         self.dropout = nn.Dropout(0.5)
+        self.clf = nn.Linear(180, cls_num)  # 180 = 60 + 60 + 60
 
     def forward(self, x):
         x = x.permute(0,2,1)
@@ -40,10 +48,13 @@ class TextCnnClassifier(nn.Module):
         conv5s_outputs = [layer(x) for layer in self.conv5s ]
         output = torch.cat([*chain(conv3s_outputs, conv4s_outputs, conv5s_outputs)], dim=2)
         output.squeeze_()
-        return self.dropout(output) 
+        output =  self.dropout(output) 
+        return self.clf(output)
 
-    def save(self, path):
-        pass 
+
+    @classmethod
+    def load(clf, path, in_dim, clf_num):
+        return  TextCnnClassifier(in_dim, clf_num).load_state_dict(path)
 
 
 

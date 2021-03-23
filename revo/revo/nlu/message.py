@@ -4,12 +4,12 @@ class Message:
     def __init__(self, utterance, history):
         self.utterance = utterance 
         self.histroy = history
-        self.nlu_results = []
+        self.nlu_results = {}
          
-    def set_features(self):
+    def set_features(self, name, value):
         pass 
 
-    def get_features(self, ):
+    def get_features(self, name):
         pass
 
 

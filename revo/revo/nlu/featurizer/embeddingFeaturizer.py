@@ -1,30 +1,41 @@
 # -*- coding: utf-8 -*- 
 import numpy as np 
-from revo import config 
+
 import torch 
 import torch.nn as nn  
 from torchtext.vocab import FastText
 
 from revo.nlu.featurizer.featurizer import Featurizer 
+from revo.config import FeaturizerConfig 
 
 
-TORCH_FASTTEXT_PATH = config.TORCH_FASTTEXT_PRETRAIN_PATH
-TOKENIZER = config.CHINESE_TOKENIZER
-LANGUAGE = config.TORCH_FASTTEXT_LANGUAGE
+TORCH_FASTTEXT_PATH = FeaturizerConfig.PRETRAIN_PATH
+TOKENIZER = FeaturizerConfig.TOKENIZER
+LANGUAGE = FeaturizerConfig.LANGUAGE
 
 class Embedding:
     def __init__(self, tokenizer, stoi, itos, vectors, unk_mark, unk_id):
-        # self.tokenizer = tokenizer kxxl
+        self.tokenizer = tokenizer
         self.stoi = stoi 
         self.itos = itos 
         self.vectors = vectors
         self.unk_id = unk_id
         self.unk_mark = unk_mark # 没有<UNK>
+        self.dim = vectors.shape[1]
+
+        
 
         
     @classmethod
-    def load(cls, path):
-        raise NotImplementedError
+    def load(cls, name):
+        if name == "fasttext":
+            return FasttextEmbedding.load()
+        elif name == "word2vec":
+            return Word2VectEmbedding.load()
+        elif name == "merge":
+            return 
+
+        
 
     def tokenize(self, sentence, tokenizer=TOKENIZER):
         return tokenizer(sentence)
@@ -101,6 +112,11 @@ class FasttextEmbedding(Embedding):
         vocab_size = len(itos)
         stoi = {item: idx for idx,item in  enumerate(itos)}
         return cls(tokenizer, stoi, itos, vectors, unk_mark, unk_mark_idx)
+
+    def save_stoi(self, where):
+        with open("./data/embedding/fasttext_vocab.txt", 'w', encoding="utf-8") as f:
+            for i in self.itos:
+                f.write(f"{i]\n")
         
 
 class MergeEmbedding:
