@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 class Domain:
     """
     Domain define part of the universe what bot should know about and how to react.

@@ -23,9 +23,6 @@ class Embedding:
         self.unk_mark = unk_mark # 没有<UNK>
         self.dim = vectors.shape[1]
 
-        
-
-        
     @classmethod
     def load(cls, name):
         if name == "fasttext":

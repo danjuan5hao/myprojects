@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import collections 
 from itertools import chain
 
 import torch 

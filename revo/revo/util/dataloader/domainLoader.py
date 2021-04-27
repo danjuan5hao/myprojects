@@ -4,10 +4,8 @@ from torch.utils.data import DataLoader
 
 from revo import config 
 
-
 class DomainDataLoader:
     def __init__(self, stoi, tokenizer, domain_name, data_path_dir):
-        
         dataset = DomainDataset(stoi, tokenizer, domain_name, data_path_dir)
         self.dataloader = DataLoader(dataset, batch_size=6)
 
@@ -40,7 +38,6 @@ class DomainDataset(Dataset):
 
     def _get_token_id_seq(self, text):
         return [self.stoi(i) for i in self.tokenizer(text)]
-
 
     def _get_domain_id(self, domain_name):
         # TODO 此处有误
