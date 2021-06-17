@@ -8,7 +8,7 @@ class TextCnn(nn.Module):
         super(TextCnn, self).__init__()
         self.bert_embedding = bert_embedding
         self.convs = nn.ModuleList(
-            [nn.Conv1d(bert_embedding_dim, 2, k) for k in[3,4,5]])
+            [nn.Conv1d(bert_embedding_dim, 2, k) for k in [3,4,5]])
         self.dropout = nn.Dropout()
         self.fc = nn.Linear(6, num_classes)
 
@@ -26,6 +26,5 @@ class TextCnn(nn.Module):
         if label is None:
             return F.softmax(out)
         else:
-            lsfnc=nn.CrossEntropyLoss()
-            return lsfnc(out, label), F.softmax(out) 
-sel
+            ls_fnc=nn.CrossEntropyLoss()
+            return ls_fnc(out, label), F.softmax(out) 
