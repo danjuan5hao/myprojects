@@ -45,19 +45,22 @@ from py2neo.ogm import GraphObject, Property, RelatedTo, RelatedFrom, Label
 if __name__ == "__main__":
     manager_file_path = "applications/littleFund/data/littleKG/manager_20210601.csv"
 
-    test_graph = Graph("http://localhost:7474",username="neo4j",  password="1234")
-    test_graph.delete_all()
+    test_graph = Graph("http://localhost:7474", auth=("neo4j", '1234') )
 
+    # test_graph.delete_all()
     test_graph.schema.create_uniqueness_constraint('Manager', 'manager_id')
     test_graph.schema.create_uniqueness_constraint('Fund', 'fund_id')
 
     matcher = NodeMatcher(test_graph)
-    
+    # manager_df = pd.read_csv(manager_path, dtype={'fund_id': str} )
 
-    manager_df = pd.read_csv(manager_file_path)
+
+    manager_df = pd.read_csv(manager_file_path, dtype={"fund_id": str, "manager_id":str})
+    manager_df['fund_id'] = manager_df['fund_id'].apply(lambda x: str(x).lstrip())
+    manager_df['manager_id'] = manager_df['manager_id'].apply(lambda x: str(x).lstrip())
     for idx, row in manager_df.iterrows():
         manager_id,	manager_name,company_id,company_name,avatar,start_day,scale,best_reward,description,fund_id,fund_name = row
-        print(manager_id)
+        # print(manager_id)
         
         manager_node_rst = matcher.match("Manager",manager_id=manager_id)
 
@@ -80,7 +83,8 @@ if __name__ == "__main__":
         rel_from = Relationship(fund_node, "runby", manager_node)
 
         s = fund_node | manager_node | rel_to | rel_from
-        test_graph.create(s)
+        test_graph.create(s) 
+        test_graph.push(s)
         # exit()
         
 

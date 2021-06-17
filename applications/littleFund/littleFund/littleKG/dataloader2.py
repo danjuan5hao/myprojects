@@ -9,21 +9,21 @@ client = MongoClient('localhost', 27017)
 fund_db = client['test']
 fund_collection = fund_db["fund"]
 
-test_graph = Graph("http://localhost:7474",username="neo4j",  password="1234")
-test_graph.delete_all()
+test_graph = Graph("http://localhost:7474", auth=("neo4j", '1234'))
+# test_graph.delete_all()
 
 test_graph.schema.create_uniqueness_constraint('Manager', 'manager_id')
 test_graph.schema.create_uniqueness_constraint('Fund', 'fund_id')
 test_graph.schema.create_uniqueness_constraint('Stock', 'stock_id')
 
 matcher = NodeMatcher(test_graph)
-l = fund_collection.find()
+l = list(fund_collection.find())
 
 for idx, sample in enumerate(l):
     fund_name = sample["fund_name"]
-    fund_id = sample['fund_id']
+    fund_id = str(sample['fund_id'])
 
-    fund_node_rst = matcher.match("Fund",fund_id=fund_id)
+    fund_node_rst = matcher.match("Fund", fund_id=fund_id)
 
     if len(fund_node_rst):
         fund_node = fund_node_rst.first()
@@ -34,10 +34,10 @@ for idx, sample in enumerate(l):
     stocks = sample["stocks"]
     if stocks:
         for stock in stocks:
-            stock_name = stock["stack_name"]
-            stock_id = stock["stack_id"]
+            stock_name = stock["stack_id"]
+            stock_id = str(stock["stack_name"])
 
-            stock_node_rst = matcher.match("Stock",stock_id=stock_id)
+            stock_node_rst = matcher.match("Stock", stock_id=stock_id)
 
             if len(stock_node_rst):
                 stock_node = stock_node_rst.first()
@@ -50,6 +50,7 @@ for idx, sample in enumerate(l):
 
             s = fund_node | stock_node | rel_to | rel_from
             test_graph.create(s)
+            # test_graph.push(s)
 
 
 
